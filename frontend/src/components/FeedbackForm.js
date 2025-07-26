@@ -45,6 +45,22 @@ const FeedbackForm = () => {
     fetchFeedbackTypes();
   }, []);
 
+  // Show loading state while fetching types
+  if (loadingTypes) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading feedback form...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const fetchFeedbackTypes = async () => {
     try {
       const response = await axios.get('/api/feedback-types');
@@ -58,8 +74,12 @@ const FeedbackForm = () => {
       setFeedbackTypes([
         { name: 'Product', description: 'Product feedback' },
         { name: 'Event', description: 'Event feedback' },
-        { name: 'Website', description: 'Website feedback' }
+        { name: 'Website', description: 'Website feedback' },
+        { name: 'Support', description: 'Support feedback' },
+        { name: 'Feature Request', description: 'Feature request feedback' }
       ]);
+      // Set default type
+      setFormData(prev => ({ ...prev, type: 'Product' }));
     } finally {
       setLoadingTypes(false);
     }
