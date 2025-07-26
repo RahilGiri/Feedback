@@ -43,6 +43,49 @@ const AdminDashboard = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  const fetchFeedbackTypes = async () => {
+    try {
+      const response = await axios.get('/api/feedback-types/admin');
+      setFeedbackTypes(response.data);
+    } catch (error) {
+      console.error('Error fetching feedback types:', error);
+      if (error.response?.status === 401) {
+        // Token expired or invalid, redirect to login
+        logout();
+        navigate('/admin/login');
+      }
+    }
+  };
+
+  const fetchFeedbacks = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({
+        page: pagination.current,
+        limit: 10,
+        ...filters
+      });
+
+      const response = await axios.get(`/api/feedback?${params}`);
+      setFeedbacks(response.data.feedbacks);
+      setPagination(response.data.pagination);
+    } catch (error) {
+      console.error('Error fetching feedbacks:', error);
+      toast.error('Failed to fetch feedbacks');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get('/api/feedback/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/admin/login');
@@ -52,8 +95,6 @@ const AdminDashboard = () => {
     fetchStats();
     fetchFeedbackTypes();
   }, [isAuthenticated, navigate, filters, pagination.current]);
-
-  const fetchFeedbackTypes = async () => {
     try {
       const response = await axios.get('/api/feedback-types/admin');
       setFeedbackTypes(response.data);

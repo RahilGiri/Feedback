@@ -41,6 +41,30 @@ const FeedbackForm = () => {
   const [typeSearch, setTypeSearch] = useState('');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
 
+  const fetchFeedbackTypes = async () => {
+    try {
+      const response = await axios.get('/api/feedback-types');
+      setFeedbackTypes(response.data);
+      if (response.data.length > 0 && !formData.type) {
+        setFormData(prev => ({ ...prev, type: response.data[0].name }));
+      }
+    } catch (error) {
+      console.error('Error fetching feedback types:', error);
+      // Fallback to default types if API fails
+      setFeedbackTypes([
+        { name: 'Product', description: 'Product feedback' },
+        { name: 'Event', description: 'Event feedback' },
+        { name: 'Website', description: 'Website feedback' },
+        { name: 'Support', description: 'Support feedback' },
+        { name: 'Feature Request', description: 'Feature request feedback' }
+      ]);
+      // Set default type
+      setFormData(prev => ({ ...prev, type: 'Product' }));
+    } finally {
+      setLoadingTypes(false);
+    }
+  };
+
   useEffect(() => {
     fetchFeedbackTypes();
   }, []);
@@ -60,8 +84,6 @@ const FeedbackForm = () => {
       </div>
     );
   }
-
-  const fetchFeedbackTypes = async () => {
     try {
       const response = await axios.get('/api/feedback-types');
       setFeedbackTypes(response.data);
